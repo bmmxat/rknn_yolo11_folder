@@ -47,6 +47,7 @@ int main(int argc, char **argv)
         printf("  --conf <float>     设置置信度阈值 (默认: 0.3)\n");
         printf("  --nms <float>      设置NMS阈值 (默认: 0.5)\n");
         printf("  --output <path>    设置检测结果图片输出目录\n");
+        printf("  --save-txt         保存检测结果到txt文件\n");
         return -1;
     }
 
@@ -56,6 +57,7 @@ int main(int argc, char **argv)
     float conf_threshold = 0.3;
     float nms_threshold = 0.5;
     const char *output_dir = nullptr;
+    int save_txt = 0; // 新增：控制是否保存txt
 
     for (int i = 3; i < argc; i++) {
         if (strcmp(argv[i], "--conf") == 0 && i + 1 < argc) {
@@ -73,6 +75,8 @@ int main(int argc, char **argv)
                 }
             }
             i++;
+        } else if (strcmp(argv[i], "--save-txt") == 0) { // 新增参数
+            save_txt = 1;
         }
     }
 
@@ -192,6 +196,34 @@ int main(int argc, char **argv)
                 input_filename = input_filename ? input_filename + 1 : file_path;
                 snprintf(output_path, sizeof(output_path), "%s/det_%s", output_dir, input_filename);
                 write_image(output_path, &src_image);
+
+                // 新增：保存检测结果到txt
+                if (save_txt) {
+                    char txt_path[1024];
+                    snprintf(txt_path, sizeof(txt_path), "%s/det_%s", output_dir, input_filename);
+                    char *dot = strrchr(txt_path, '.');
+                    if (dot) strcpy(dot, ".txt");
+                    FILE *fp = fopen(txt_path, "w");
+                    if (fp) {
+                        fprintf(fp, "ID,PATH,TYPE,SCORE,XMIN,YMIN,XMAX,YMAX\n");
+                        for (int i = 0; i < od_results.count; i++) {
+                            object_detect_result *det_result = &(od_results.results[i]);
+                            fprintf(fp, "%d,%s,%s,%.3f,%d,%d,%d,%d\n",
+                                i,
+                                file_path,
+                                coco_cls_to_name(det_result->cls_id),
+                                det_result->prop,
+                                det_result->box.left,
+                                det_result->box.top,
+                                det_result->box.right,
+                                det_result->box.bottom
+                            );
+                        }
+                        fclose(fp);
+                    } else {
+                        printf("Failed to write result txt: %s\n", txt_path);
+                    }
+                }
             }
 
 #if defined(RV1106_1103)

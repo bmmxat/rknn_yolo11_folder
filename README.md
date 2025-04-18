@@ -1,3 +1,21 @@
+# RKNN yolo11文件夹推理
+
+## 简介
+
+基于官方c++ 实现demo修改，添加推理文件夹、保存推理结果txt以及置信度设置等功能
+
+## 使用方法
+
+1. 使用官方提供方法编译：
+```
+./build-linux.sh -t rk3588 -a aarch64 -d yolo11_folder #注意替换设备等
+```
+2. 在板端运行
+```
+export LD_LIBRARY_PATH=./lib
+./your_app model.rknn images/ --conf 0.3 --nms 0.5 --output results/ --save-txt
+```
+********************************************************************************************
 # yolo11
 
 ## Table of contents
