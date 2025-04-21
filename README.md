@@ -5,14 +5,22 @@
 基于官方c++ 实现demo修改，添加推理文件夹、保存推理结果txt以及置信度设置等功能
 
 ## 使用方法
-
-1. 使用官方提供方法编译：
+1. 将此项目放入官方库examples：
 ```
-./build-linux.sh -t rk3588 -a aarch64 -d yolo11_folder #注意替换设备等
+git clone https://github.com/airockchip/rknn_model_zoo.git
+cd rknn_model_zoo
+git clone https://github.com/bmmxat/rknn_yolo11_folder.git
+mv rknn_yolo11_folder examples
+```
+2. 使用官方提供方法编译：
+```
+./build-linux.sh -t rk3588 -a aarch64 -d rknn_yolo11_folder 
+# 注意替换设备等，生成的可执行文件在install下
 ```
 2. 在板端运行
 ```
 export LD_LIBRARY_PATH=./lib
+# 替换为你的路径
 ./your_app model.rknn images/ --conf 0.3 --nms 0.5 --output results/ --save-txt
 ```
 ********************************************************************************************
